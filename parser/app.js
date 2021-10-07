@@ -6,12 +6,16 @@ const parser = new PEParser();
 
 const start = async () => {
 
-    await parser.loadFile('/home/spirit/hard/workspace/gardenstory_tools/exe/CrackMe.exe');
+
+	const exeFile = `${__dirname}/../exe/CrackMe.exe`;
+
+    await parser.loadFile(exeFile);
 
     // let result = parser.findStrings('pass');
     // console.log(result)
 
     console.log(parser.getHeaders());
+    console.log(parser.getSections());
 
 }
 start();

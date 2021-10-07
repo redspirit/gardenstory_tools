@@ -67,7 +67,7 @@ class PEParser {
 
         let buf = this.buffer;
 
-        let peHeaderAddress = buf.readUInt32LE(this.hexToInt('3C'));
+        let peHeaderAddress = buf.readUInt32LE(60);
 
         return {
             e_magic: String.fromCharCode(buf.readInt8(0)) + String.fromCharCode(buf.readInt8(1)),
@@ -77,23 +77,25 @@ class PEParser {
             NumberOfSections: buf.readUInt16LE(peHeaderAddress + 6),
             SizeOfOptionalHeader: this.intToHex(buf.readUInt16LE(peHeaderAddress + 20)),
             Characteristics: this.intToHex(buf.readUInt16LE(peHeaderAddress + 22)),
-
             Magic: this.intToHex(buf.readUInt16LE(peHeaderAddress + 24)),
-            AddressOfEntryPoint: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16)),
-            ImageBase: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16 + 12)),
-            SectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16 + 12 + 4)),
-            FileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16 + 12 + 8)),
-            SizeOfImage: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16 + 12 + 8 + 20)),
-            SizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16 + 12 + 8 + 24)),
-            Subsystem: this.intToHex(buf.readUInt16LE(peHeaderAddress + 24 + 16 + 12 + 8 + 24 + 8)),
-            NumberOfRvaAndSizes: this.intToHex(buf.readUInt32LE(peHeaderAddress + 24 + 16 + 12 + 8 + 24 + 8 + 24)),
+            AddressOfEntryPoint: this.intToHex(buf.readUInt32LE(peHeaderAddress + 40)),
+            ImageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)),
+            SectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 56)),
+            FileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 60)),
+            SizeOfImage: this.intToHex(buf.readUInt32LE(peHeaderAddress + 80)),
+            SizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 84)),
+            Subsystem: this.intToHex(buf.readUInt16LE(peHeaderAddress + 92)),
+            NumberOfRvaAndSizes: this.intToHex(buf.readUInt32LE(peHeaderAddress + 132)),
         }
 
 
     }
 
     getSections () {
+        let sectionsCount = this.getHeaders()['NumberOfSections'];
 
+
+        console.log('sectionsCount', sectionsCount);
 
     }
 
