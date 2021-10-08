@@ -74,29 +74,29 @@ class PEParser {
         return {
             e_magic: buf.toString('utf8', 0, 2),
             e_lfanew: this.intToHex(peHeaderAddress),
-            Signature: this.getString(peHeaderAddress, 4),
-            Machine: this.intToHex(buf.readUInt16LE(peHeaderAddress + 4)),
-            NumberOfSections: buf.readUInt16LE(peHeaderAddress + 6),
-            SizeOfOptionalHeader: this.intToHex(buf.readUInt16LE(peHeaderAddress + 20)),
-            Characteristics: this.intToHex(buf.readUInt16LE(peHeaderAddress + 22)),
-            Magic: this.intToHex(buf.readUInt16LE(peHeaderAddress + 24)),
-            AddressOfEntryPoint: this.intToHex(buf.readUInt32LE(peHeaderAddress + 40)),
-            ImageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)),
-            SectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 56)),
-            FileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 60)),
-            SizeOfImage: this.intToHex(buf.readUInt32LE(peHeaderAddress + 80)),
-            SizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 84)),
-            Subsystem: this.intToHex(buf.readUInt16LE(peHeaderAddress + 92)),
-            NumberOfRvaAndSizes: this.intToHex(buf.readUInt32LE(peHeaderAddress + 132)),
-            ImportsVA: this.intToHex(buf.readUInt32LE(peHeaderAddress + 132 + 12)),
+            signature: this.getString(peHeaderAddress, 4),
+            machine: this.intToHex(buf.readUInt16LE(peHeaderAddress + 4)),
+            numberOfSections: buf.readUInt16LE(peHeaderAddress + 6),
+            sizeOfOptionalHeader: buf.readUInt16LE(peHeaderAddress + 20),
+            characteristics: this.intToHex(buf.readUInt16LE(peHeaderAddress + 22)),
+            magic: this.intToHex(buf.readUInt16LE(peHeaderAddress + 24)),
+            addressOfEntryPoint: this.intToHex(buf.readUInt32LE(peHeaderAddress + 40)),
+            imageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)),
+            sectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 56)),
+            fileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 60)),
+            sizeOfImage: this.intToHex(buf.readUInt32LE(peHeaderAddress + 80)),
+            sizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 84)),
+            subsystem: this.intToHex(buf.readUInt16LE(peHeaderAddress + 92)),
+            numberOfRvaAndSizes: buf.readUInt32LE(peHeaderAddress + 132),
+            importsVA: this.intToHex(buf.readUInt32LE(peHeaderAddress + 132 + 12)),
         }
-
 
     }
 
     getSections () {
-        let startAddress = this.buffer.readUInt32LE(60) + 264;
-        let sectionsCount = this.getHeaders()['NumberOfSections'];
+        let sectionsCount = this.getHeaders()['numberOfSections'];
+        let headersSize = this.getHeaders()['sizeOfOptionalHeader'];
+        let startAddress = this.buffer.readUInt32LE(60) + headersSize + 24;
 
         let sections = [];
 
