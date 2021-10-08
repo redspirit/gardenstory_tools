@@ -30,7 +30,7 @@ class PEParser {
                     if(char >= 32 && char <= 126) {
                         string += String.fromCharCode(char)
                     } else if(string.length > 0) {
-                        if(string.length > 2) groups.push([addr.toString(16), string]);
+                        if(string.length > 2) groups.push([(addr - string.length).toString(16), string]);
                         string = '';
                     }
                     addr++;
@@ -81,7 +81,8 @@ class PEParser {
             characteristics: this.intToHex(buf.readUInt16LE(peHeaderAddress + 22)),
             magic: this.intToHex(buf.readUInt16LE(peHeaderAddress + 24)),
             addressOfEntryPoint: this.intToHex(buf.readUInt32LE(peHeaderAddress + 40)),
-            imageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)),
+            imageBase: this.intToHex(buf.readUInt32LE(peHeaderAddress + 52)),
+            // imageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)), // for 64
             sectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 56)),
             fileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 60)),
             sizeOfImage: this.intToHex(buf.readUInt32LE(peHeaderAddress + 80)),
@@ -106,10 +107,10 @@ class PEParser {
 
             sections.push({
                 name: this.getString(0, 8, sect),
-                virtualSize: sect.readUInt32LE(8),
-                virtualAddress: sect.readUInt32LE(12),
-                sizeOfRawData: sect.readUInt32LE(16),
-                pointerToRawData: sect.readUInt32LE(20),
+                virtualSize: this.intToHex(sect.readUInt32LE(8)),
+                virtualAddress: this.intToHex(sect.readUInt32LE(12)),
+                sizeOfRawData: this.intToHex(sect.readUInt32LE(16)),
+                pointerToRawData: this.intToHex(sect.readUInt32LE(20)),
                 characteristics: sect.readUInt32LE(36),
             });
 
