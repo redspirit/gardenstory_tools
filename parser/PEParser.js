@@ -7,7 +7,7 @@ class PEParser {
     }
 
     intToHex (int) {
-        return int.toString(16);
+        return int.toString(16).toUpperCase();
     }
 
     hexToInt(hex) {
@@ -44,11 +44,13 @@ class PEParser {
         })
     }
 
-    getString(address, length) {
-        let sbuf = this.buffer.slice(address, address + length);
+    getString(address, length, subBuffer = null) {
+        let sbuf = subBuffer
+            ? subBuffer.slice(address, address + length)
+            : this.buffer.slice(address, address + length);
         let str = '';
         for (const char of sbuf) {
-            str += String.fromCharCode(char)
+            if(char >= 32 && char <= 126) str += String.fromCharCode(char)
         }
         return str;
     }
@@ -70,7 +72,7 @@ class PEParser {
         let peHeaderAddress = buf.readUInt32LE(60);
 
         return {
-            e_magic: String.fromCharCode(buf.readInt8(0)) + String.fromCharCode(buf.readInt8(1)),
+            e_magic: buf.toString('utf8', 0, 2),
             e_lfanew: this.intToHex(peHeaderAddress),
             Signature: this.getString(peHeaderAddress, 4),
             Machine: this.intToHex(buf.readUInt16LE(peHeaderAddress + 4)),
@@ -86,16 +88,36 @@ class PEParser {
             SizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 84)),
             Subsystem: this.intToHex(buf.readUInt16LE(peHeaderAddress + 92)),
             NumberOfRvaAndSizes: this.intToHex(buf.readUInt32LE(peHeaderAddress + 132)),
+            ImportsVA: this.intToHex(buf.readUInt32LE(peHeaderAddress + 132 + 12)),
         }
 
 
     }
 
     getSections () {
+        let startAddress = this.buffer.readUInt32LE(60) + 264;
         let sectionsCount = this.getHeaders()['NumberOfSections'];
 
+        let sections = [];
 
-        console.log('sectionsCount', sectionsCount);
+        for(let i = 0; i < sectionsCount; i++) {
+            let addr = startAddress + i * 40;
+            let sect = this.buffer.slice(addr, addr + 40);
+
+            sections.push({
+                name: this.getString(0, 8, sect),
+                virtualSize: sect.readUInt32LE(8),
+                virtualAddress: sect.readUInt32LE(12),
+                sizeOfRawData: sect.readUInt32LE(16),
+                pointerToRawData: sect.readUInt32LE(20),
+                characteristics: sect.readUInt32LE(36),
+            });
+
+            // console.log(sect);
+        }
+
+        // console.log('sections', sections);
+        return sections;
 
     }
 
