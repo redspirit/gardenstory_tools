@@ -14,7 +14,11 @@ const start = async () => {
     await parser.loadFile(exeFile);
 
     let result = parser.findStrings('a game');
-    console.log(result);
+    console.log(result[0].address);
+
+    let addressForChange = parser.findXref(result[0].offset);
+
+    console.log('addressForChange', parser.intToHex(addressForChange));
 
     // todo
     // 2. поиск мест, где этот адрес используется

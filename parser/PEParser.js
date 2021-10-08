@@ -50,12 +50,25 @@ class PEParser {
         return this.strings.filter(item => {
             return new RegExp(name, "i").test(item.data);
         }).map(item => {
-            item.section = this.getSectionByOffset(item.offset);
-            item.address = this.convertOffsetToVirtual(item.offset);
-            item.addressHex = this.intToHex(item.address);
+            // item.section = this.getSectionByOffset(item.offset);
+            // item.address = this.convertOffsetToVirtual(item.offset);
+            // item.addressHex = this.intToHex(item.address);
             return item;
         });
 
+    }
+
+    findXref (offset) {
+        let startOfSections = this.sections[0].pointerToRawData;
+        let address = this.convertOffsetToVirtual(offset);
+        let match = null;
+        for (let i = startOfSections; i < this.buffer.length - 4; i++) {
+            if(this.buffer.readUInt32LE(i) === address) {
+                match = i;
+                break;
+            }
+        }
+        return match;
     }
 
     getSectionByOffset(offset) {
