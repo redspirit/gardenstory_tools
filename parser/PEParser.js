@@ -24,6 +24,8 @@ class PEParser {
                 this.sections = this.getSections();
                 this.strings = this.extractStrings();
 
+                // console.log(this.headers);
+                // console.log(this.sections);
                 // console.log(this.strings);
 
                 resolve(buf);
@@ -133,7 +135,7 @@ class PEParser {
             // imageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)), // for 64
             sectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 56)),
             fileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 60)),
-            sizeOfImage: this.intToHex(buf.readUInt32LE(peHeaderAddress + 80)),
+            sizeOfImage: buf.readUInt32LE(peHeaderAddress + 80),
             sizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 84)),
             subsystem: this.intToHex(buf.readUInt16LE(peHeaderAddress + 92)),
             numberOfRvaAndSizes: buf.readUInt32LE(peHeaderAddress + 132),
@@ -157,9 +159,51 @@ class PEParser {
                 sizeOfRawData: sect.readUInt32LE(16),
                 pointerToRawData: sect.readUInt32LE(20),
                 characteristics: sect.readUInt32LE(36),
+                headerPointer: addr,
             });
         }
         return sections;
+    }
+
+    createPatchedFile (path) {
+
+        let texts = ['Hello World!', 'I am Spirit'];
+
+        let textsLen = texts.join('.').length + 1;
+        let contentVirtLen = Math.ceil(textsLen / 64) * 64;
+        let contentLen = Math.ceil(textsLen / 512) * 512;
+        let content = Buffer.alloc(contentLen);
+
+        let addr = 0;
+        for(let i = 0; i < texts.length; i++) {
+            let text = Buffer.from(texts[i]);
+            console.log('address', addr, texts[i]);
+            text.copy(content, addr);
+            addr += (text.length + 1);
+        }
+
+        let buf = Buffer.alloc(this.buffer.length + content.length);
+        this.buffer.copy(buf);
+
+        let peHeaderAddress = buf.readUInt32LE(60);
+        let lastSection = this.sections[this.sections.length - 1];
+        let headerAddr = lastSection.headerPointer + 40;
+
+        let sectionsAddr = this.buffer.length;
+
+        buf.writeUInt16LE(this.headers.numberOfSections + 1, peHeaderAddress + 6)
+        buf.writeUInt32LE(this.headers.sizeOfImage + content.length, peHeaderAddress + 80); //todo ???
+
+        buf.write('.strings', headerAddr, 8, 'utf8'); // name
+        buf.writeUInt32LE(contentVirtLen, headerAddr + 8); // virtualSize возможно надо округлить до 64
+        buf.writeUInt32LE(lastSection.virtualSize + lastSection.virtualAddress, headerAddr + 12); // virtualAddress
+        buf.writeUInt32LE(content.length, headerAddr + 16); // sizeOfRawData
+        buf.writeUInt32LE(sectionsAddr, headerAddr + 20); // pointerToRawData
+        buf.writeUInt32LE(this.hexToInt('C0000000'), headerAddr + 36); // characteristics
+
+        content.copy(buf, sectionsAddr);
+        fs.createWriteStream(path).write(buf);
+
     }
 
 }
