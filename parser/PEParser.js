@@ -1,4 +1,5 @@
 const fs = require('fs');
+const lang = require('./lang.json');
 
 class PEParser {
     constructor() {
@@ -63,14 +64,13 @@ class PEParser {
     findXref (offset) {
         let startOfSections = this.sections[0].pointerToRawData;
         let address = this.convertOffsetToVirtual(offset);
-        let match = null;
+        let matches = [];
         for (let i = startOfSections; i < this.buffer.length - 4; i++) {
             if(this.buffer.readUInt32LE(i) === address) {
-                match = i;
-                break;
+                matches.push(i);
             }
         }
-        return match;
+        return matches;
     }
 
     getSectionByOffset(offset) {
@@ -133,7 +133,7 @@ class PEParser {
             addressOfEntryPoint: this.intToHex(buf.readUInt32LE(peHeaderAddress + 40)),
             imageBase: buf.readUInt32LE(peHeaderAddress + 52),
             // imageBase: this.intToHex(buf.readBigUInt64LE(peHeaderAddress + 48)), // for 64
-            sectionAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 56)),
+            sectionAlignment: buf.readUInt32LE(peHeaderAddress + 56),
             fileAlignment: this.intToHex(buf.readUInt32LE(peHeaderAddress + 60)),
             sizeOfImage: buf.readUInt32LE(peHeaderAddress + 80),
             sizeOfHeaders: this.intToHex(buf.readUInt32LE(peHeaderAddress + 84)),
@@ -167,20 +167,21 @@ class PEParser {
 
     createPatchedFile (path) {
 
-        let texts = ['Hello World!', 'I am Spirit'];
+        let textsLen = 0;
+        lang.strings.forEach(item => {
+            item.buffer = Buffer.from(item.text, 'utf8');
+            item.localAddr = textsLen;
+            textsLen += (item.buffer.length + 1);
+        });
 
-        let textsLen = texts.join('.').length + 1;
+        let secAligment = this.headers.sectionAlignment;
         let contentVirtLen = Math.ceil(textsLen / 64) * 64;
         let contentLen = Math.ceil(textsLen / 512) * 512;
         let content = Buffer.alloc(contentLen);
 
-        let addr = 0;
-        for(let i = 0; i < texts.length; i++) {
-            let text = Buffer.from(texts[i]);
-            console.log('address', addr, texts[i]);
-            text.copy(content, addr);
-            addr += (text.length + 1);
-        }
+        lang.strings.forEach(item => {
+            item.buffer.copy(content, item.localAddr);
+        });
 
         let buf = Buffer.alloc(this.buffer.length + content.length);
         this.buffer.copy(buf);
@@ -194,14 +195,26 @@ class PEParser {
         buf.writeUInt16LE(this.headers.numberOfSections + 1, peHeaderAddress + 6)
         buf.writeUInt32LE(this.headers.sizeOfImage + content.length, peHeaderAddress + 80); //todo ???
 
+        let secVirtAddr = Math.ceil((lastSection.virtualSize + lastSection.virtualAddress) / secAligment) * secAligment;
+
         buf.write('.strings', headerAddr, 8, 'utf8'); // name
         buf.writeUInt32LE(contentVirtLen, headerAddr + 8); // virtualSize возможно надо округлить до 64
-        buf.writeUInt32LE(lastSection.virtualSize + lastSection.virtualAddress, headerAddr + 12); // virtualAddress
+        buf.writeUInt32LE(secVirtAddr, headerAddr + 12); // virtualAddress
         buf.writeUInt32LE(content.length, headerAddr + 16); // sizeOfRawData
         buf.writeUInt32LE(sectionsAddr, headerAddr + 20); // pointerToRawData
         buf.writeUInt32LE(this.hexToInt('C0000000'), headerAddr + 36); // characteristics
 
         content.copy(buf, sectionsAddr);
+
+        lang.strings.forEach(item => {
+            let va = item.localAddr + secVirtAddr + this.headers.imageBase;
+            this.findXref(item.offset).forEach(xref => {
+                buf.writeUInt32LE(va, xref);
+            });
+            console.log(item.text, this.intToHex(va));
+        });
+
+        // return console.log(va);
         fs.createWriteStream(path).write(buf);
 
     }
