@@ -1,0 +1,28 @@
+Gather Node Key,Type,Resource Count (Base),Base Coin Chance,Resource (Unique),Unique Chance,Rare,Location Notes
+river_rock_small,rock,2,0.1,itm_rsr_rock,0.15,,Anywhere There's River Water
+river_rock_large,rock,2,0.2,itm_rsr_rock,0.35,,Anywhere There's River Water
+stump_small,wood,2,0.15,itm_rsr_branch,0.15,,Anywhere There's Growth
+stump_large,wood,2,0.25,itm_rsr_branch,0.35,,Anywhere There's Growth
+glass_small,glass,2,0.25,itm_rsr_glass_lens,0.05,,Anywhere with Sea Access
+glass_large,glass,2,0.45,itm_rsr_glass_shard,0.075,,Anywhere with Sea Access
+,,,,,,,
+green_rock_small,rock,1,0.1,itm_rsr_flowstone,0.35,,Spring Hamlet
+green_rock_large,rock,1,0.1,itm_rsr_flowstone,0.65,,Spring Hamlet
+green_stump_small,wood,1,0.1,itm_rsr_sap,0.35,,Spring Hamlet
+green_stump_large,wood,1,0.1,itm_rsr_sap,1,,Spring Hamlet
+,,,,,,,
+,,,,,,,
+,,,,,,,
+succulent,wood,1,0.15,itm_rsr_succulent,1,,Summer Bar
+sandstone,rock,1,0.5,itm_rsr_sandstone,1,,Summer Bar
+driftwood,wood,1,0.8,itm_rsr_driftwood,1,,Summer Bar
+,,,,,,,
+pithroot,wood,1,0.5,itm_rsr_pithroot,0.5,,Autumn Town
+cornerstone,rock,1,0.15,itm_rsr_cornerstone,1,,Autumn Town
+screwbox,wood,1,0.8,itm_rsr_rustedscrew,1,,Autumn Town
+,,,,,,,
+peat,misc.,0,0,itm_rsr_peatpellet,2,,Winter Thicket
+tombstone,rock,1,0,itm_rsr_tombstone,1,,Winter Thicket
+icecube,misc.,0,0.2,,,,Winter Thicket
+fatwood_sml,wood,2,0.3,itm_rsr_fatwood,1.5,,Winter Thicket
+fatwood_lrg,wood,2,0.5,itm_rsr_fatwood,2.5,,Winter Thicket
