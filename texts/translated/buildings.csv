@@ -1,0 +1,5 @@
+key,name,description,rsr_a_type,rsr_a_count,rsr_b_type,rsr_b_count,rsr_c_type,rsr_c_count
+atm_clear1,Clear 1,gooby1,inv_rsr_bough,2,inv_rsr_flowstone,2,,
+atm_clear2,Clear 2,gooby2,inv_rsr_shard,2,inv_rsr_flowstone,2,,
+atm_fix1,Fix 1,grombo number 5,inv_rsr_flowstone,2,inv_rsr_succulent,2,,
+atm_bridge1,Южный мост,"Мост, пересекающий канал по канализационному стоку.",inv_rsr_twig,15,inv_rsr_pithroot,4,,
