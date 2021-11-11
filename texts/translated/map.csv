@@ -1,4 +1,4 @@
-"  ",name,town,x,y,width,height,song,vibe,type,Chinese,Spanish,French,Japanese,Portuguese,Korean
+  ,name,town,x,y,width,height,song,vibe,type,Chinese,Spanish,French,Japanese,Portuguese,Korean
 r_thebend,Изгиб,Весенняя Деревня,12,15,2,2,,,outside,,,,,,
 r_home,Дом Конкорда,Весенняя Деревня,13,16,0,0,song_home,,inside,,,,,,
 r_testroom,Перекрестки Рощи,Весенняя Деревня,11,17,3,3,song_spr_wild,,outside,,,,,,
